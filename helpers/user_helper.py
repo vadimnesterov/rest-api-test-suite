@@ -1,43 +1,57 @@
 import requests
-from data import Urls
 from faker import Faker
 
+from data import Urls
 
 fake = Faker()
 
 
 class UserHelper:
-# создание, регистрация, логин, удаление.
+    """
+    Класс-хелпер для работы с пользователями:
+    генерация данных, регистрация, логин, удаление.
+    """
 
     @staticmethod
     def generate_user():
         """
-        Минимальная генерация данных пользователя.
-        Тут только значения — никаких API-вызовов.
+        Создаёт словарь с данными нового пользователя.
+        Никаких API-вызовов — только генерация данных.
         """
         return {
             "email": fake.email(),
             "password": fake.password(length=10),
-            "name": fake.first_name()
+            "name": fake.first_name(),
         }
-
 
     @staticmethod
     def register(user_data: dict):
+        """
+        POST /auth/register
+        Регистрация нового пользователя.
+        """
         return requests.post(
             f"{Urls.BASE_URL}{Urls.REGISTER}",
-            json=user_data
+            json=user_data,
         )
 
     @staticmethod
     def login(user_data: dict):
+        """
+        POST /auth/login
+        Логин существующего пользователя.
+        """
         return requests.post(
             f"{Urls.BASE_URL}{Urls.LOGIN}",
-            json=user_data
+            json=user_data,
         )
 
     @staticmethod
     def delete_user(token: str):
+        """
+        DELETE /auth/user
+        Удаление пользователя по токену.
+        """
         if token and not token.startswith("Bearer "):
             token = f"Bearer {token}"
 
@@ -45,5 +59,5 @@ class UserHelper:
 
         return requests.delete(
             f"{Urls.BASE_URL}{Urls.USER}",
-            headers=headers
+            headers=headers,
         )
