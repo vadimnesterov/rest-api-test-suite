@@ -1,4 +1,5 @@
 import pytest
+import allure
 
 from data import EXPECTED_STATUS
 from helpers.order_helper import OrderHelper

@@ -1,4 +1,5 @@
 import pytest
+import allure
 
 from data import EXPECTED_STATUS, ServerResponse
 from helpers.user_helper import UserHelper
