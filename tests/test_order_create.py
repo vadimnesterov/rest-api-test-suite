@@ -1,4 +1,3 @@
-import pytest
 import allure
 
 from data import EXPECTED_STATUS
