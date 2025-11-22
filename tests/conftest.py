@@ -1,4 +1,5 @@
 import pytest
+import uuid
 from helpers.user_helper import UserHelper
 from helpers.order_helper import OrderHelper
 
@@ -7,22 +8,34 @@ from helpers.order_helper import OrderHelper
 
 @pytest.fixture
 def new_user_data():
+    """
+    Генерируем данные нового пользователя.
 
-    # Генерируем данные нового пользователя.
+    Берём базовую структуру из UserHelper.generate_user(),
+    но email делаем гарантированно уникальным, чтобы не ловить 403 User already exists.
+    """
+    user = UserHelper.generate_user()
 
-    return UserHelper.generate_user()
+    unique = uuid.uuid4().hex[:8]
+    user["email"] = f"autotest_{unique}@example.com"
+
+    return user
 
 
 @pytest.fixture
 def created_user(new_user_data):
-
-    # Регистрируем пользователя перед тестом и возвращаем Response.
-
+    # Регистрируем пользователя перед тестом
     register_response = UserHelper.register(new_user_data)
+
+    # <-- Проверяем, что юзер реально создан -->
+    assert register_response.status_code == 200, (
+        f"ERROR in fixture: user was NOT created. "
+        f"Status: {register_response.status_code}, body: {register_response.text}"
+    )
 
     yield register_response
 
-    # После теста пробуем залогиниться и удалить пользователя
+    # Удаление пользователя
     login_response = UserHelper.login(new_user_data)
     login_json = login_response.json()
     token = login_json.get("accessToken") or login_json.get("access_token")
