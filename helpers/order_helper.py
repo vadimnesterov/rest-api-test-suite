@@ -33,6 +33,24 @@ class OrderHelper:
         )
 
     @staticmethod
+    def get_orders(token: str = None):
+        """
+        Получить список заказов пользователя.
+        Если передать токен — запрос будет авторизованным.
+        """
+        headers = {}
+        if token:
+            if not token.startswith("Bearer "):
+                token = f"Bearer {token}"
+            headers["Authorization"] = token
+
+        return requests.get(
+            f"{Urls.BASE_URL}{Urls.ORDERS}",
+            headers=headers
+        )
+
+
+    @staticmethod
     def get_ingredients():
         """
         Получить список ингредиентов.
