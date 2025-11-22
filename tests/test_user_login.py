@@ -5,82 +5,70 @@ from data import EXPECTED_STATUS, ServerResponse
 from helpers.user_helper import UserHelper
 
 
-def test_user_can_login_successfully(new_user_data, created_user):
-    """
-    Позитивный сценарий:
-    зарегистрированный пользователь может зайти в систему.
-    """
-    # Делаем запрос логина теми же данными, что использовали при регистрации
-    response = UserHelper.login(new_user_data)
+@allure.epic("API: Пользователи")
+@allure.feature("Авторизация")
+class TestUserLogin:
 
-    # Проверяем статус-код (200 OK — успешная авторизация)
-    assert response.status_code == EXPECTED_STATUS.OK
+    @allure.title("Успешный вход зарегистрированного пользователя")
+    @allure.description("Проверяем, что пользователь с корректными логином и паролем может войти в систему.")
+    def test_user_can_login_successfully(self, new_user_data, created_user):
+        with allure.step("Отправить запрос логина с валидными данными"):
+            response = UserHelper.login(new_user_data)
 
-    # Получаем тело ответа
-    body = response.json()
+        with allure.step("Проверить статус-код 200 OK"):
+            assert response.status_code == EXPECTED_STATUS.OK
 
-    # Проверяем, что сервер вернул accessToken — признак успешного логина
-    token = body.get("accessToken")
-    assert token is not None
+        with allure.step("Проверить наличие accessToken в ответе"):
+            body = response.json()
+            token = body.get("accessToken")
+            assert token is not None
 
+    @allure.title("Нельзя авторизоваться с неверным паролем")
+    @allure.description("Проверяем, что при неправильном пароле сервер возвращает 401 Unauthorized.")
+    def test_user_cannot_login_with_wrong_password(self, new_user_data, created_user):
+        with allure.step("Сформировать данные логина с неверным паролем"):
+            wrong_data = dict(new_user_data)
+            wrong_data["password"] = new_user_data["password"] + "X"
 
-def test_user_cannot_login_with_wrong_password(new_user_data, created_user):
-    """
-    Негативный сценарий:
-    логин с неверным паролем должен быть отклонён.
-    """
-    # Берём те же данные пользователя, но изменяем пароль
-    wrong_data = dict(new_user_data)
-    wrong_data["password"] = new_user_data["password"] + "X"
+        with allure.step("Отправить запрос логина с неверным паролем"):
+            response = UserHelper.login(wrong_data)
 
-    # Делаем запрос логина с неверным паролем
-    response = UserHelper.login(wrong_data)
+        with allure.step("Проверить статус-код 401 Unauthorized"):
+            assert response.status_code == EXPECTED_STATUS.UNAUTHORIZED
 
-    # Проверяем статус-код (401 Unauthorized)
-    assert response.status_code == EXPECTED_STATUS.UNAUTHORIZED
+        with allure.step("Проверить сообщение об ошибке WRONG_CREDENTIALS"):
+            body = response.json()
+            assert body.get("message") == ServerResponse.WRONG_CREDENTIALS
 
-    # Получаем тело ответа
-    body = response.json()
+    @allure.title("Нельзя авторизоваться несуществующим пользователем")
+    @allure.description("Проверяем, что попытка входа с несуществующей учетной записью приводит к ошибке.")
+    def test_user_cannot_login_nonexistent_user(self):
+        with allure.step("Сформировать данные для несуществующего пользователя"):
+            fake_user = {
+                "email": "nonexistent_user_123@example.com",
+                "password": "wrongPass12345"
+            }
 
-    # Проверяем сообщение об ошибке
-    assert body.get("message") == ServerResponse.WRONG_CREDENTIALS
+        with allure.step("Отправить запрос логина несуществующего пользователя"):
+            response = UserHelper.login(fake_user)
 
-def test_user_cannot_login_nonexistent_user():
-    """
-    Негативный сценарий:
-    попытка логина несуществующего пользователя должна завершиться ошибкой.
-    """
-    # Формируем данные пользователя, которого нет в системе
-    fake_user = {
-        "email": "nonexistent_user_123@example.com",
-        "password": "wrongPass12345"
-    }
+        with allure.step("Проверить статус-код 401 Unauthorized"):
+            assert response.status_code == EXPECTED_STATUS.UNAUTHORIZED
 
-    # Пытаемся выполнить логин несуществующего пользователя
-    response = UserHelper.login(fake_user)
+    @allure.title("Нельзя авторизоваться без обязательного поля")
+    @allure.description("Проверяем, что логин невозможен без email или password.")
+    @pytest.mark.parametrize("missing_field", ["email", "password"])
+    def test_user_cannot_login_without_required_field(self, new_user_data, missing_field):
+        with allure.step(f"Удалить обязательное поле '{missing_field}' из данных логина"):
+            invalid_data = new_user_data.copy()
+            invalid_data.pop(missing_field, None)
 
-    # Проверяем статус-код (401 Unauthorized — нет таких учётных данных)
-    assert response.status_code == EXPECTED_STATUS.UNAUTHORIZED
+        with allure.step("Отправить запрос логина с неполными данными"):
+            response = UserHelper.login(invalid_data)
 
+        with allure.step("Проверить статус-код 401 Unauthorized"):
+            assert response.status_code == EXPECTED_STATUS.UNAUTHORIZED
 
-@pytest.mark.parametrize("missing_field", ["email", "password"])
-def test_user_cannot_login_without_required_field(new_user_data, missing_field):
-    """
-    Негативный сценарий:
-    логин невозможен, если отсутствует одно из обязательных полей.
-    """
-    # Удаляем обязательное поле, указанное в параметре (email или password)
-    invalid_data = new_user_data.copy()
-    invalid_data.pop(missing_field, None)
-
-    # Делаем запрос логина с неполными данными
-    response = UserHelper.login(invalid_data)
-
-    # Проверяем статус-код (401 Unauthorized — учетные данные некорректные или неполные)
-    assert response.status_code == EXPECTED_STATUS.UNAUTHORIZED
-
-    # Получаем тело ответа
-    body = response.json()
-
-    # Проверяем, что сервер вернул поле message — признак корректной обработки ошибки
-    assert body.get("message") is not None
+        with allure.step("Проверить, что сервер вернул сообщение об ошибке"):
+            body = response.json()
+            assert body.get("message") is not None
