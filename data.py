@@ -35,10 +35,5 @@ class ServerResponse:
     SERVER_ERROR = "Internal Server Error"
 
 
-# Создаем словарь с рандомным валидным пользователем."""
-def build_random_user() -> dict:
-    return {
-        "email": faker.email(),
-        "password": faker.password(),
-        "name": faker.first_name(),
-    }
+
+
