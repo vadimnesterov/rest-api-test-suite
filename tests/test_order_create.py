@@ -46,12 +46,12 @@ class TestOrders:
 
     @allure.title("Нельзя создать заказ без списка ингредиентов")
     @allure.description("Проверяем, что сервер возвращает 400 Bad Request при отсутствии ингредиентов.")
-    def test_cannot_create_order_without_ingredients(self, authorized_user):
+    def test_cannot_create_order_without_ingredients(self):
         with allure.step("Сформировать заказ с пустым списком ингредиентов"):
             order_data = {"ingredients": []}
 
-        with allure.step("Отправить запрос создания заказа"):
-            response = OrderHelper.create_order(order_data, token=authorized_user)
+        with allure.step("Отправить запрос создания заказа без токена"):
+            response = OrderHelper.create_order(order_data)
 
         with allure.step("Проверить, что код ответа — 400 Bad Request"):
             assert response.status_code == EXPECTED_STATUS.BAD_REQUEST

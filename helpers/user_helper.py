@@ -8,7 +8,7 @@ fake = Faker()
 
 class UserHelper:
     """
-    Класс-хелпер для работы с пользователями:
+   Работа с пользователями:
     генерация данных, регистрация, логин, удаление.
     """
 
@@ -16,11 +16,17 @@ class UserHelper:
     def generate_user():
         """
         Создаёт словарь с данными нового пользователя.
-        Никаких API-вызовов — только генерация данных.
+
         """
         return {
             "email": fake.email(),
-            "password": fake.password(length=10),
+            "password": fake.password(
+                length=10,
+                special_chars=False,
+                digits=True,
+                upper_case=True,
+                lower_case=True,
+            ),
             "name": fake.first_name(),
         }
 

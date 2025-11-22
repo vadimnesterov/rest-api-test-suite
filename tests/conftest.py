@@ -20,7 +20,6 @@ def created_user(new_user_data):
 
     register_response = UserHelper.register(new_user_data)
 
-    # Отдаём сам Response в тест
     yield register_response
 
     # После теста пробуем залогиниться и удалить пользователя
@@ -34,13 +33,14 @@ def created_user(new_user_data):
 
 @pytest.fixture
 def authorized_user(new_user_data, created_user):
-
-    # Логиним уже зарегистрированного пользователя и возвращает только токен(строку).
+    # Логин уже зарегистрированного пользователя
 
     login_response = UserHelper.login(new_user_data)
     login_json = login_response.json()
     token = login_json.get("accessToken") or login_json.get("access_token")
+
     return token
+
 
 
 # ЗАКАЗ
@@ -81,7 +81,6 @@ def created_order(authorized_user, default_order_data):
     token = authorized_user
     create_response = OrderHelper.create_order(default_order_data, token)
 
-    # Отдаём Response в тест
     yield create_response
 
     # Если можно — отменяем заказ, если API вернул track
