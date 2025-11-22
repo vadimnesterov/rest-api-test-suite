@@ -1,9 +1,26 @@
 import requests
 from data import Urls
+from faker import Faker
+
+
+fake = Faker()
 
 
 class UserHelper:
-# регистрация, логин, удаление.
+# создание, регистрация, логин, удаление.
+
+    @staticmethod
+    def generate_user():
+        """
+        Минимальная генерация данных пользователя.
+        Тут только значения — никаких API-вызовов.
+        """
+        return {
+            "email": fake.email(),
+            "password": fake.password(length=10),
+            "name": fake.first_name()
+        }
+
 
     @staticmethod
     def register(user_data: dict):

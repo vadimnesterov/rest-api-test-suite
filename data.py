@@ -1,8 +1,3 @@
-from faker import Faker
-
-faker = Faker("ru_RU")
-
-
 class Urls:
     # Базовый URL
     BASE_URL = "https://stellarburgers.education-services.ru"
