@@ -1,3 +1,5 @@
+# version: v1.1
+
 import allure
 
 from data import EXPECTED_STATUS
@@ -20,11 +22,11 @@ class TestOrders:
         with allure.step("Проверить, что success=True и в ответе присутствует объект заказа"):
             body = response.json()
 
-            success = body.get("success")
-            if success is not None:
-                assert success is True
+            assert "success" in body, "Поле 'success' отсутствует в ответе"
+            assert body["success"] is True, "Ожидалось success=True"
 
-            assert body.get("order") is not None
+            assert "order" in body, "Объект 'order' отсутствует в ответе"
+            assert body["order"] is not None, "Объект 'order' равен None"
 
     @allure.title("Неавторизованный пользователь может создать заказ")
     @allure.description("Проверяем, что гость может создать заказ с валидными ингредиентами.")
@@ -38,11 +40,11 @@ class TestOrders:
         with allure.step("Проверить, что success=True и заказ присутствует в ответе"):
             body = response.json()
 
-            success = body.get("success")
-            if success is not None:
-                assert success is True
+            assert "success" in body, "Поле 'success' отсутствует в ответе"
+            assert body["success"] is True, "Ожидалось success=True"
 
-            assert body.get("order") is not None
+            assert "order" in body, "Объект 'order' отсутствует в ответе"
+            assert body["order"] is not None, "Объект 'order' равен None"
 
     @allure.title("Нельзя создать заказ без списка ингредиентов")
     @allure.description("Проверяем, что сервер возвращает 400 Bad Request при отсутствии ингредиентов.")
@@ -56,14 +58,14 @@ class TestOrders:
         with allure.step("Проверить, что код ответа — 400 Bad Request"):
             assert response.status_code == EXPECTED_STATUS.BAD_REQUEST
 
-        with allure.step("Проверить, что сервер вернул сообщение об ошибке"):
+        with allure.step("Проверить, что сервер вернул сообщение об ошибке и success=False"):
             body = response.json()
 
-            success = body.get("success")
-            if success is not None:
-                assert success is False
+            assert "success" in body, "Поле 'success' отсутствует в ответе"
+            assert body["success"] is False, "Ожидалось success=False"
 
-            assert body.get("message") is not None
+            assert "message" in body, "Поле 'message' отсутствует в ответе"
+            assert body["message"] is not None, "Сообщение об ошибке отсутствует"
 
     @allure.title("Нельзя создать заказ с невалидным id ингредиента")
     @allure.description("Проверяем, что сервер возвращает ошибку при передаче несуществующего id ингредиента.")
@@ -90,7 +92,8 @@ class TestOrders:
             assert response.status_code == EXPECTED_STATUS.OK
 
             body = response.json()
-            assert isinstance(body.get("orders"), list)
+            assert "orders" in body, "Поле 'orders' отсутствует в ответе"
+            assert isinstance(body["orders"], list), "Поле 'orders' не является списком"
 
     @allure.title("Неавторизованный пользователь не может получить список заказов")
     @allure.description("Проверяем, что запрос списка заказов без токена приводит к 401 Unauthorized.")
@@ -102,4 +105,5 @@ class TestOrders:
             assert response.status_code == EXPECTED_STATUS.UNAUTHORIZED
 
             body = response.json()
-            assert body.get("message") is not None
+            assert "message" in body, "Поле 'message' отсутствует в ответе"
+            assert body["message"] is not None, "Сообщение об ошибке отсутствует"
