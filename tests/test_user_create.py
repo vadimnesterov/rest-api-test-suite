@@ -1,3 +1,5 @@
+# version: v1.1
+
 import pytest
 import allure
 
@@ -21,11 +23,11 @@ class TestUserCreate:
         with allure.step("Проверить success=True и наличие accessToken"):
             body = response.json()
 
-            success = body.get("success")
-            if success is not None:
-                assert success is True
+            assert "success" in body, "Поле 'success' отсутствует в ответе"
+            assert body["success"] is True, "Ожидалось success=True"
 
-            assert body.get("accessToken") is not None
+            assert "accessToken" in body, "Поле 'accessToken' отсутствует в ответе"
+            assert body["accessToken"] is not None, "accessToken отсутствует или равен None"
 
     @allure.title("Нельзя создать пользователя, который уже зарегистрирован")
     @allure.description("Повторная регистрация с теми же данными должна вернуть ошибку.")
@@ -36,14 +38,14 @@ class TestUserCreate:
         with allure.step("Проверить код ответа 403 Forbidden"):
             assert response.status_code == EXPECTED_STATUS.FORBIDDEN
 
-        with allure.step("Проверить, что success=False (если есть) и есть сообщение об ошибке"):
+        with allure.step("Проверить, что success=False и есть сообщение об ошибке"):
             body = response.json()
 
-            success = body.get("success")
-            if success is not None:
-                assert success is False
+            assert "success" in body, "Поле 'success' отсутствует в ответе"
+            assert body["success"] is False, "Ожидалось success=False"
 
-            assert body.get("message") is not None
+            assert "message" in body, "Поле 'message' отсутствует в ответе"
+            assert body["message"] is not None, "Сообщение об ошибке отсутствует"
 
     @allure.title("Нельзя создать пользователя без обязательного поля")
     @allure.description("Проверяем, что регистрация невозможна без email, password или name.")
@@ -59,11 +61,11 @@ class TestUserCreate:
         with allure.step("Проверить код ответа 403 Forbidden"):
             assert response.status_code == EXPECTED_STATUS.FORBIDDEN
 
-        with allure.step("Проверить, что success=False (если есть) и присутствует сообщение об ошибке"):
+        with allure.step("Проверить, что success=False и присутствует сообщение об ошибке"):
             body = response.json()
 
-            success = body.get("success")
-            if success is not None:
-                assert success is False
+            assert "success" in body, "Поле 'success' отсутствует в ответе"
+            assert body["success"] is False, "Ожидалось success=False"
 
-            assert body.get("message") is not None
+            assert "message" in body, "Поле 'message' отсутствует в ответе"
+            assert body["message"] is not None, "Сообщение об ошибке отсутствует"
