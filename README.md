@@ -1,7 +1,6 @@
-# Diplom_2 — API Tests for Stellar Burgers
+# REST API Test Suite
 
-Automated API tests for the [Stellar Burgers](https://stellarburgers.education-services.ru/) service,
-written as part of the Yandex Practicum QA Automation course.
+Automated API tests for the [Stellar Burgers](https://stellarburgers.education-services.ru/) service.
 
 ---
 
@@ -69,3 +68,9 @@ allure serve allure_results
 | `helpers/order_helper.py` | Order API calls: create, get, ingredients |
 | `data.py` | Constants: base URL, API paths, status codes, server messages |
 | `requirements.txt` | Pinned project dependencies |
+
+---
+
+## Technical Notes
+
+- Missing required fields are tested via `@pytest.mark.para
