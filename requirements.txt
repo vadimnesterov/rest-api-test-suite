@@ -1,0 +1,5 @@
+allure-python-commons==2.16.0
+requests==2.34.2
+pytest==8.4.2
+allure-pytest==2.16.0
+Faker==40.19.1
