@@ -73,4 +73,8 @@ allure serve allure_results
 
 ## Technical Notes
 
-- Missing required fields are tested via `@pytest.mark.para
+- Missing required fields are tested via `@pytest.mark.parametrize` rather than
+  individual test functions - one parametrized test per endpoint, not per field.
+- Test users are created and deleted via API in fixtures, not hardcoded credentials.
+- All API base URLs and paths are centralised in `data.py` - no hardcoded URLs in test bodies.
+- Dependencies are pinned (`requirements.txt`) for reproducible test runs.
